@@ -17,58 +17,66 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#define ROW1_SLOTS 6
+#define ROW2_SLOTS 6
+#define ROW3_SLOTS 4
 
-#include "Arduino.h"
+
+#include <Arduino.h>
 #include "SevenSegmentChars.h"
+
+enum Align {
+  Left,
+  Center,
+  Right,
+};
 
 class Display {
 public:
   Display(uint8_t _enable, uint8_t _clock, uint8_t _data);
 
-  void print(const char* firstRow, const char* secondRow, const char* thirdRow);
-  void cls();
-
-  void printRow1(const char* str);
-  void printRow2(const char* str);
-  void printRow3(const char* str);
-
-  void clearRow(uint8_t i);
+  Display& updateRows(
+    String s1,
+    String s2,
+    String s3,
+    Align a1 = Align::Left,
+    Align a2 = Align::Left,
+    Align a3 = Align::Left
+  );
+  Display& updateRow(int i, String str, Align a = Align::Left);
+  Display& clearRows();
+  Display& clearRow(uint8_t i);
+  Display& apply();
+  Display& cls();
 
   void setup();
 
-  void getStrState(char* r1, char* r2, char* r3);
-  void getStrState1(char* r);
-  void getStrState2(char* r);
-  void getStrState3(char* r);
 protected:
-  size_t translate(const char* str, uint8_t* buf, size_t bufSize);
-  void print(uint8_t charCode);
-  static const uint8_t FIRST_ROW_SLOTS = 6;
-  static const uint8_t SECOND_ROW_SLOTS = 6;
-  static const uint8_t THIRD_ROW_SLOTS = 4;
-  static const uint8_t LCD_SLOTS = FIRST_ROW_SLOTS + SECOND_ROW_SLOTS + THIRD_ROW_SLOTS;
-  static const uint8_t FIRST_STR_LEN = (FIRST_ROW_SLOTS << 1);
-  static const uint8_t SECOND_STR_LEN = (SECOND_ROW_SLOTS << 1);
-  static const uint8_t THIRD_STR_LEN = (THIRD_ROW_SLOTS << 1);
-  uint8_t charValue[128];
+  static const uint8_t SLOTS = ROW1_SLOTS + ROW2_SLOTS + ROW3_SLOTS;
+  static const uint8_t STR1_LEN = (ROW1_SLOTS << 1);
+  static const uint8_t STR2_LEN = (ROW2_SLOTS << 1);
+  static const uint8_t STR3_LEN = (ROW3_SLOTS << 1);
 
+
+private:
   inline void generateEnable() __attribute__((always_inline));
   inline void generateCLK() __attribute__((always_inline));
   inline void init() __attribute__((always_inline));
+  void print(uint8_t charCode);
+  size_t translate(char* const s, uint8_t* buf, uint8_t l, uint8_t r);
 
-private:
+  static const uint8_t charValue[128];
   int enable_pin;
   int clock_pin;
   int data_pin;
-  void printCurrentState();
-  uint8_t row1[FIRST_ROW_SLOTS];
-  uint8_t row2[SECOND_ROW_SLOTS];
-  uint8_t row3[THIRD_ROW_SLOTS];
 
-  char str1[FIRST_STR_LEN];
-  char str2[SECOND_STR_LEN];
-  char str3[THIRD_STR_LEN];
-  inline void wipeState() __attribute__((always_inline));
-  void wipeSate(uint8_t i);
+  char str1[STR1_LEN + 1];
+  char str2[STR2_LEN + 1];
+  char str3[STR3_LEN + 1];
+
+  char* const str[3] = { str1, str2, str3 };
+  uint8_t strLen[3] = { STR1_LEN, STR2_LEN, STR3_LEN };
+  uint8_t rowLen[3] = { ROW1_SLOTS, ROW2_SLOTS, ROW3_SLOTS };
 };
+
 #endif
