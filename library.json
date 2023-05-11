@@ -1,6 +1,6 @@
 {
     "name": "LT-3XS664",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "This is a library for the LT-3XS664(595) display, which has three rows with six, six, and four slots, respectively.",
     "keywords": "display, lcd, lt-3XS664-595, ui, multi-row display, 7 segment display",
     "authors": [
